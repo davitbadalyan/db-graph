@@ -1,0 +1,66 @@
+#CanvasWaterfall { 
+	background-color: black;
+	position: absolute;
+	left: 0;
+	top: 22px;
+	z-index: 1;
+}
+
+#CanvasWaterfallZoom { 
+	position: absolute;
+	left: 0;
+	top: 22px;
+	z-index: 2;
+}
+
+#CanvasWaterfallOrig { 
+	background-color: black;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 0;
+	display: none;
+}
+
+#CanvasScope { 
+	background-color: black;
+	position: absolute;
+	left: 0;
+	top: 22px;
+	z-index: 1;
+}
+
+#CanvasScopeZoom { 
+	position: absolute;
+	left: 0;
+	top: 22px;
+	z-index: 2;
+}
+
+#CanvasScopeOrig { 
+	background-color: black;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 0;
+	display: none;
+}
+
+#waterfall {
+	position: relative;
+	background-color: yellow;
+	margin: 0 auto;
+}
+#scope {
+	position: relative;
+	background-color: yellow;
+	margin: 0 auto;
+}
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>DBGraph</title>
+	<script src="../script/DBGraph.js"></script>
+	<script src="../script/DBGraphScope.js"></script>
+	<script src="../script/DBGraphEventsMouse.js"></script>
+	<script src="../script/DataGen.js"></script>
+	<link rel="stylesheet" type="text/css" href="../css/DBGraph.css">
+	<script type="text/javascript">
+        var start = function () {
+            var wsImpl = window.WebSocket || window.MozWebSocket;
+            var form = document.getElementById('sendForm');
+            var input = document.getElementById('sendText');
+
+            // create a new websocket and connect
+            window.ws = new wsImpl('ws://localhost:8181/');
+            //window.ws.binaryType = 'arraybuffer';
+            
+            // when data is comming from the server, this metod is called
+            ws.onmessage = function (evt) {
+            };
+
+            // when the connection is established, this method is called
+            ws.onopen = function () {
+            };
+
+            // when the connection is closed, this method is called
+            ws.onclose = function () {
+            }
+            
+			form.addEventListener('submit', function(e){
+				e.preventDefault();
+				var val = input.value;
+				ws.send(val);
+				input.value = "";
+			});
+        } 
+    </script>
+</head>
+
+<body>
+	<div id="preload" style="width: 100%; height: 700px; background-color: red; display: yes;  position: relative; top: 0px; left: 0px;"></div>
+	<div id="content" class="noselect" style="width: 100%; height: 700px; background-color: #EAEAEA; display: none; position: relative; top: 0px; left: 0px;">
+		<div id="scope" class="noselect" ></div>
+		<div id="waterfall" class="noselect" ></div>
+		<div id="debug" style="width: 100%; height: 100px; background-color: #FFFFFF; display: yes; position: relative; top: 0px; left: 0px;">
+			<input id="XVal2" type="text" value=""><input id="YVal2" type="text" value=""><br>
+			<input id="XVal3" type="text" value=""><input id="YVal3" type="text" value=""><br>
+			<form id="sendForm" >
+		        <input id="sendText" placeholder="Text to send" />
+                <button type="submit" form="sendForm">Send</button>
+	        </form>
+		</div>
+	</div>
+	
+</body>
+</html>

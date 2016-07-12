@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Report</title>
+	<script src="../script/DataGen.js"></script>
+	<script>
+		//Actual
+		var divContent; 
+		var divRowHead = [];
+		var divSplittr = [];
+		var cnvRes = [];
+		var cnvOvr = [];
+		var ctxRes = [];
+		var ctxOvr = [];
+		var Data = new Array();
+		var Spec = new Array();
+		var SpecInt = new Array();
+		
+		var ValOutSpecCol = "#FF69B4";
+		var ValOutSpecIntCol = "#FFC0CB";
+		var ValInSpecCol = "#90EE90";
+		
+		var SpecCol = "#B4B4B4";
+		var SpecIntCol = "#C8C8C8";
+		var HeaderHeight = 100;
+		var HighLightCol = "#ADFF2F";
+		function pageLoaded(){
+			divContent = document.getElementById("content");
+			CreatePage(divContent, 100);
+			SPN_Res = document.getElementById("SPN_Res");
+		}
+		function drowResults(Canvas, Context, data, spec, specInt) {
+			//Fill Internal Spec areas
+			Context.fillStyle = SpecIntCol;
+			Context.globalAlpha=0.7;
+			Context.fillRect(0, 0, specInt[0], 50);
+			Context.fillRect(specInt[1], 0, Canvas.width, 50);
+			//Fill Spec areas
+			Context.fillStyle= SpecCol;
+			Context.globalAlpha=0.7;
+			Context.fillRect(0, 0, spec[0], 50);
+			Context.fillRect(spec[1], 0, Canvas.width, 50);
+			
+			for (var i = 1; i < data.length; i++) {
+				if (data[i] < specInt[1] && data[i] > specInt[0]){
+					Context.strokeStyle = "#B4B4B4"; //ValInSpecCol;
+					Context.fillStyle = ValInSpecCol;
+				} else if (data[i] < spec[1] && data[i] > spec[0]){
+					Context.strokeStyle = "#B4B4B4"; //ValOutSpecIntCol;
+					Context.fillStyle = ValOutSpecIntCol;
+				} else {
+					Context.strokeStyle = "#E6E6E6"; //ValOutSpecCol;
+					Context.fillStyle = ValOutSpecCol;
+				}
+				Context.beginPath();
+				Context.arc(data[i], Canvas.height/2, 4, 0, 2 * Math.PI, false);
+				Context.lineWidth = 1;
+				
+				Context.fill();
+				Context.stroke();
+				Context.closePath();
+			}
+			
+		}
+		
+		function mouseOverWtr (event) {
+			var Element = event.target;
+			var data = Data[Element.id];
+			//alert(Element.id);
+			var Context = Element.getContext('2d');
+			var Offset = getOffset(Element);
+			while( SPN_Res.firstChild ) {
+				SPN_Res.removeChild( SPN_Res.firstChild );
+			}
+			Context.clearRect(0, 0, Element.width, Element.height);
+			for (var i = 1; i < data.length; i++) {
+				if((event.pageX - Offset.left) >= (data[i] - 2) && (event.pageX - Offset.left) <= (data[i] + 2)) {
+					SPN_Res.appendChild(document.createTextNode("Corner " + i + ": " + parseFloat(data[i]).toFixed(2)));
+					SPN_Res.style.display = "block";
+					if ((event.pageX - Offset.left) < Element.width / 2){
+						SPN_Res.style.left = (event.pageX - Offset.left + 200 + 20) + "px";
+					} else{
+						SPN_Res.style.left = (event.pageX - Offset.left + 200 - 120) + "px";
+					}
+					SPN_Res.style.top = (event.pageY - HeaderHeight) + "px";
+					Context.fillStyle= HighLightCol;
+					Context.globalAlpha=0.99;
+					//Context.fillRect((data[i] - 2), 0, 4, 50);
+					Context.beginPath();
+					Context.arc(data[i], 25, 4, 0, 2 * Math.PI, false);
+					Context.lineWidth = 1;
+				
+					Context.fill();
+					Context.stroke();
+					Context.closePath();
+					
+
+					break;
+				}
+			}
+		}
+		
+		function mouseOutWtr (event) {
+			var Element = event.target;
+			var Context = Element.getContext('2d');
+			SPN_Res.style.display = "none";
+			Context.clearRect(0, 0, Element.width, Element.height);
+		}
+		
+		function getOffset(obj) {
+			var offsetLeft = 0;
+			var offsetTop = 0;
+			do {
+				if (!isNaN(obj.offsetLeft)) {
+				offsetLeft += obj.offsetLeft;
+				}
+				if (!isNaN(obj.offsetTop)) {
+					offsetTop += obj.offsetTop;
+				}   
+			} while(obj = obj.offsetParent );
+			return {left: offsetLeft, top: offsetTop};
+		}
+		
+		//Actual
+		function CreatePage(Parent, RowsNo){
+			var divRowHeadWidth = 200;
+			var divRowHeadHidth = 50;
+			for(var i=0; i < RowsNo; i++) {
+				//Add Header Div
+				var curr_divRowHead = document.createElement('div');
+				divRowHead.push(curr_divRowHead);
+				curr_divRowHead.setAttribute("id", "DivRowHead_" + i);
+				curr_divRowHead.setAttribute("class", "noselect");
+				var newStyle = "display: inline-block; width: " + divRowHeadWidth + "px; height: " + divRowHeadHidth + "px; background-color: #A9A9A9; text-align: center; line-height: 50px; margin: 0px 0px 0px 0px; vertical-align: top;"
+				if(typeof(curr_divRowHead.style.cssText) != 'undefined') {
+					curr_divRowHead.style.cssText = newStyle;
+				} else {
+					curr_divRowHead.setAttribute('style', newStyle);
+				}
+				curr_divRowHead.appendChild(document.createTextNode("Measurement Name " + i));
+				Parent.appendChild(curr_divRowHead);
+				
+				//Add Results Canvas
+				var curr_cnvRes = document.createElement('canvas');
+				cnvRes.push(curr_cnvRes);
+				curr_cnvRes.setAttribute("id", "CnvRes_" + i);
+				curr_cnvRes.setAttribute("class", "noselect");
+				curr_cnvRes.setAttribute("width", "800");
+				curr_cnvRes.setAttribute("height", "50");
+				var newStyle = "background-color: #E6E6E6; position: absolute; left: " + (divRowHeadWidth + 3) + "px; top: " + ((((i==0)?(0):(3)) + divRowHeadHidth) * (i))  + "px; vertical-align: top; z-index: 0;"
+				if(typeof(curr_cnvRes.style.cssText) != 'undefined') {
+					curr_cnvRes.style.cssText = newStyle;
+				} else {
+					curr_cnvRes.setAttribute('style', newStyle);
+				}
+				var curr_ctxRes = curr_cnvRes.getContext('2d');
+				ctxRes.push(curr_ctxRes);
+				var data = randomData(100, 3, 1450, 1450);
+				var spec = [100, 700];
+				Spec["cnvOvr_" + i] = spec;
+				var specInt = [200, 600];
+				SpecInt["cnvOvr_" + i] = specInt;
+				Data["cnvOvr_" + i] = data;
+				drowResults(curr_cnvRes, curr_ctxRes, data, spec, specInt);
+				Parent.appendChild(curr_cnvRes);
+				
+				//Add Overlay Canvas
+				var curr_cnvOvr = document.createElement('canvas');
+				cnvOvr.push(curr_cnvOvr);
+				curr_cnvOvr.setAttribute("id", "cnvOvr_" + i);
+				curr_cnvOvr.setAttribute("class", "noselect");
+				curr_cnvOvr.setAttribute("width", "800");
+				curr_cnvOvr.setAttribute("height", "50");
+				var newStyle = "position: absolute; left: " + (divRowHeadWidth + 3) + "px; top: " + ((((i==0)?(0):(3)) + divRowHeadHidth) * (i))  + "px; vertical-align: top; z-index: 1;"
+				if(typeof(curr_cnvOvr.style.cssText) != 'undefined') {
+					curr_cnvOvr.style.cssText = newStyle;
+				} else {
+					curr_cnvOvr.setAttribute('style', newStyle);
+				}
+				var curr_ctxOvr = curr_cnvOvr.getContext('2d');
+				ctxOvr.push(curr_ctxOvr);
+				
+				Parent.appendChild(curr_cnvOvr);
+				
+				//Add Splitter Div
+				var curr_divSplittr = document.createElement('div');
+				divSplittr.push(curr_divSplittr);
+				curr_divSplittr.setAttribute("id", "divSplitter_" + i);
+				curr_divSplittr.setAttribute("class", "noselect");
+				var newStyle = "display: block; width: 100%; height: 3px"
+				if(typeof(curr_divSplittr.style.cssText) != 'undefined') {
+					curr_divSplittr.style.cssText = newStyle;
+				} else {
+					curr_divSplittr.setAttribute('style', newStyle);
+				}
+				Parent.appendChild(curr_divSplittr);
+			}
+			
+			for(var i=0; i < RowsNo; i++) {
+				cnvOvr[i].addEventListener("mousemove", function(event){mouseOverWtr(event)}, false);
+				cnvOvr[i].addEventListener("mouseout", function(event){mouseOutWtr(event)}, false);
+			}
+		}
+		window.onload = pageLoaded;
+	</script>
+</head>
+
+<body>
+	<div id="header" class="noselect" style="width: 1003px; height: 100px; background-color: #000000; display: yes; position: relative; margin: 0 auto; margin-bottom: 1px">
+	
+	</div>
+	<div id="content" class="noselect" style="width: 1003px; /*height: 700px;*/ background-color: #ffffff; display: yes; position: relative; margin: 0 auto;">
+		<span id="SPN_Res" style="/*background-color: #ffffff;*/ position: absolute; left: 500px; top: 20px; display: none; z-index: 2;"></span>
+	</div>
+	
+</body>
+</html>
